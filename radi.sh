@@ -24,6 +24,8 @@ Options:
                     shiburadi: Shibuya no Radio
   -s STATION ID   Station ID
   -d MINUTE       Record minute(s)
+                  if MINUTE is set to 0,
+                  Play radio and ignore FILEPATH
   -o FILEPATH     Output file path
   -i ADDRESS      login mail address (radiko only)
   -p PASSWORD     login password (radiko only)
@@ -299,6 +301,7 @@ duration=0
 output=""
 login_id=""
 login_password=""
+mode="rec"
 while getopts t:s:d:o:i:p:l option; do
   case "${option}" in
     t)
@@ -309,6 +312,9 @@ while getopts t:s:d:o:i:p:l option; do
       ;;
     d)
       duration="${OPTARG}"
+      if [ "${OPTARG}" = "0" ]; then
+        mode="play"
+      fi
       ;;
     o)
       output="${OPTARG}"
@@ -438,50 +444,85 @@ if [ -z "${playlist_uri}" ]; then
   exit 1
 fi
 
-# Record
-if [ "${type}" = "radiko" ]; then
-  ffmpeg \
-      -loglevel error \
-      -fflags +discardcorrupt \
-      -headers "X-Radiko-Authtoken: ${radiko_authtoken}" \
-      -i "${playlist_uri}" \
-      -acodec copy \
-      -vn \
-      -bsf:a aac_adtstoasc \
-      -y \
-      -t "$(format_time "${duration}")" \
-      "${output}"
-elif [ "${type}" = "shiburadi" ]; then
-  ffmpeg \
-      -loglevel error \
-      -fflags +discardcorrupt \
-      -i "${playlist_uri}" \
-      -acodec copy \
-      -vn \
-      -y \
-      -t "$(format_time "${duration}")" \
-      "${output}"
-else
-  ffmpeg \
-      -loglevel error \
-      -fflags +discardcorrupt \
-      -i "${playlist_uri}" \
-      -acodec copy \
-      -vn \
-      -bsf:a aac_adtstoasc \
-      -y \
-      -t "$(format_time "${duration}")" \
-      "${output}"
-fi
-ret=$?
-if [ ${ret} -ne 0 ]; then
-  echo "Record failed" >&2
+if [ "${mode}" = "rec" ]; then
+  # Record
   if [ "${type}" = "radiko" ]; then
-    logout_radiko "${radiko_session}"
+      ffmpeg \
+        -loglevel error \
+        -fflags +discardcorrupt \
+        -headers "X-Radiko-Authtoken: ${radiko_authtoken}" \
+        -i "${playlist_uri}"
+        -acodec copy \
+        -vn \
+        -bsf:a aac_adtstoasc \
+        -y \
+        -t "$(format_time "${duration}")" \
+        "${output}"
+  elif [ "${type}" = "shiburadi" ]; then
+    ffmpeg \
+        -loglevel error \
+        -fflags +discardcorrupt \
+        -i "${playlist_uri}" \
+        -acodec copy \
+        -vn \
+        -y \
+        -t "$(format_time "${duration}")" \
+        "${output}"
+  else
+    ffmpeg \
+        -loglevel error \
+        -fflags +discardcorrupt \
+        -i "${playlist_uri}" \
+        -acodec copy \
+        -vn \
+        -bsf:a aac_adtstoasc \
+        -y \
+        -t "$(format_time "${duration}")" \
+        "${output}"
   fi
-  exit 1
+  ret=$?
+  if [ ${ret} -ne 0 ]; then
+    echo "Record failed" >&2
+    if [ "${type}" = "radiko" ]; then
+      logout_radiko "${radiko_session}"
+    fi
+    exit 1
+  fi
+else
+  # Play
+  if [ "${type}" = "radiko" ]; then
+    trap "logout_radiko \"${radiko_session}\";exit 1" 1 2 3 15 # trap Ctrl-C
+    ffplay \
+        -loglevel error \
+        -fflags +discardcorrupt \
+        -headers "X-Radiko-Authtoken: ${radiko_authtoken}" \
+        -vn \
+        -nodisp \
+        -i "${playlist_uri}"
+  elif [ "${type}" = "shiburadi" ]; then
+    ffplay \
+        -loglevel error \
+        -fflags +discardcorrupt \
+        -vn \
+        -nodisp \
+        -i "${playlist_uri}"
+  else
+    ffplay \
+        -loglevel error \
+        -fflags +discardcorrupt \
+        -vn \
+        -nodisp \
+        -i "${playlist_uri}"
+  fi
+  ret=$?
+  if [ ${ret} -ne 0 ]; then
+    echo "ffplay failed" >&2
+    if [ "${type}" = "radiko" ]; then
+      logout_radiko "${radiko_session}"
+    fi
+    exit 1
+  fi
 fi
-
 # Finish
 if [ "${type}" = "radiko" ]; then
   logout_radiko "${radiko_session}"
