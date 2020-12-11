@@ -24,8 +24,8 @@ Options:
                     shiburadi: Shibuya no Radio
   -s STATION ID   Station ID
   -d MINUTE       Record minute(s)
-                  if MINUTE is set to 0,
-                  Play radio and ignore FILEPATH
+                    if MINUTE is set to 0,
+                    Play radio and ignore FILEPATH
   -o FILEPATH     Output file path
   -i ADDRESS      login mail address (radiko only)
   -p PASSWORD     login password (radiko only)
