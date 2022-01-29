@@ -41,7 +41,7 @@ _EOT_
 show_all_stations() {
   # Radiru
   echo "Record type: nhk"
-  list=$(curl --silent "https://www.nhk.or.jp/radio/config/config_v5.7.3_radiru_and.xml")
+  list=$(curl --silent "https://www.nhk.or.jp/radio/config/config_v5.8.0_radiru_and.xml")
   cnt=$(echo "${list}" | xmllint --xpath "count(/radiru_config/area)" - 2> /dev/null)
   for i in $(awk "BEGIN { for (i = 1; i <= ${cnt}; i++) { print i } }"); do
     echo "  $(echo "${list}" | xmllint --xpath "concat(string((/radiru_config/area)[${i}]/@id), '-r1: ', string((/radiru_config/area)[${i}]/@name), ' R1')" - 2> /dev/null)"
@@ -52,7 +52,7 @@ show_all_stations() {
 
   # radiko
   echo "Record type: radiko"
-  list=$(curl --silent "http://radiko.jp/v3/station/region/full.xml")
+  list=$(curl --silent "https://radiko.jp/v3/station/region/full.xml")
   cnt=$(echo "${list}" | xmllint --xpath "count(/region/stations/station)" - 2> /dev/null)
   for i in $(awk "BEGIN { for (i = 1; i <= ${cnt}; i++) { print i } }"); do
     echo "  $(echo "${list}" | xmllint --xpath "concat((/region/stations/station)[${i}]/id/text(), ': ', (/region/stations/station)[${i}]/name/text())" - 2> /dev/null)"
@@ -144,7 +144,7 @@ logout_radiko() {
 radiko_authorize() {
   radiko_session=$1  
 
-  # Define authorize key value (from http://radiko.jp/apps/js/playerCommon.js)
+  # Define authorize key value (from https://radiko.jp/apps/js/playerCommon.js)
   RADIKO_AUTHKEY_VALUE="bcd151073c03b352e1ef2fd66c32209da9ca0afa"
 
   # Authorize 1
@@ -201,12 +201,12 @@ get_hls_uri_nhk() {
 
   if [ "${station_id}" = "r2" ]; then
     # R2
-    curl --silent "https://www.nhk.or.jp/radio/config/config_v5.7.3_radiru_and.xml" | xmllint --xpath "string(/radiru_config/config[@key='url_stream_r2']/value[1]/@text)" - 2> /dev/null
+    curl --silent "https://www.nhk.or.jp/radio/config/config_v5.8.0_radiru_and.xml" | xmllint --xpath "string(/radiru_config/config[@key='url_stream_r2']/value[1]/@text)" - 2> /dev/null
   else
     # Split area and channel
     area="$(echo "${station_id}" | cut -d '-' -f 1)"
     channel="$(echo "${station_id}" | cut -d '-' -f 2)"
-    curl --silent "https://www.nhk.or.jp/radio/config/config_v5.7.3_radiru_and.xml" | xmllint --xpath "string(/radiru_config/area[@id='${area}']/config[@key='url_stream_${channel}']/value[1]/@text)" - 2> /dev/null
+    curl --silent "https://www.nhk.or.jp/radio/config/config_v5.8.0_radiru_and.xml" | xmllint --xpath "string(/radiru_config/area[@id='${area}']/config[@key='url_stream_${channel}']/value[1]/@text)" - 2> /dev/null
   fi
 }
 
@@ -227,7 +227,7 @@ get_hls_uri_radiko() {
     areafree="1"
   fi
 
-  curl --silent "http://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='${areafree}'][1]/playlist_create_url/text()" - 2> /dev/null
+  curl --silent "https://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='${areafree}'][1]/playlist_create_url/text()" - 2> /dev/null
 }
 
 #######################################
