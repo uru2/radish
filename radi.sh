@@ -43,7 +43,7 @@ show_all_stations() {
   echo "Record type: nhk"
   list=$(curl --silent "https://www.nhk.or.jp/radio/config/config_v5.7.3_radiru_and.xml")
   cnt=$(echo "${list}" | xmllint --xpath "count(/radiru_config/area)" - 2> /dev/null)
-  for i in $(seq 1 "${cnt}"); do
+  for i in $(awk "BEGIN { for (i = 1; i <= ${cnt}; i++) { print i } }"); do
     echo "  $(echo "${list}" | xmllint --xpath "concat(string((/radiru_config/area)[${i}]/@id), '-r1: ', string((/radiru_config/area)[${i}]/@name), ' R1')" - 2> /dev/null)"
     echo "  $(echo "${list}" | xmllint --xpath "concat(string((/radiru_config/area)[${i}]/@id), '-fm: ', string((/radiru_config/area)[${i}]/@name), ' FM')" - 2> /dev/null)"
   done
@@ -54,7 +54,7 @@ show_all_stations() {
   echo "Record type: radiko"
   list=$(curl --silent "http://radiko.jp/v3/station/region/full.xml")
   cnt=$(echo "${list}" | xmllint --xpath "count(/region/stations/station)" - 2> /dev/null)
-  for i in $(seq 1 "${cnt}"); do
+  for i in $(awk "BEGIN { for (i = 1; i <= ${cnt}; i++) { print i } }"); do
     echo "  $(echo "${list}" | xmllint --xpath "concat((/region/stations/station)[${i}]/id/text(), ': ', (/region/stations/station)[${i}]/name/text())" - 2> /dev/null)"
   done
   echo ""
@@ -68,7 +68,7 @@ show_all_stations() {
   echo "Record type: jcba"
   list=$(curl --silent "https://www.jcbasimul.com/")
   cnt=$(echo "${list}" | xmllint --html --xpath "count(//div[@class='stationList']//div[@class='areaList']/ul[@class='cf']/li)" - 2> /dev/null)
-  for i in $(seq 1 "${cnt}"); do
+  for i in $(awk "BEGIN { for (i = 1; i <= ${cnt}; i++) { print i } }"); do
     echo "  $(echo "${list}" | xmllint --html --xpath "concat(string((//div[@class='stationList']//div[@class='areaList']/ul[@class='cf']/li)[${i}]//div[@class='rplayer']/@id), ': ', string((//div[@class='stationList']//div[@class='areaList']/ul[@class='cf']/li)[${i}]/@value))" - 2> /dev/null)"
   done
   echo ""
