@@ -388,7 +388,6 @@ else
 fi
 
 playlist_uri=""
-radiko_session=""
 radiko_authtoken=""
 
 # Record type processes
@@ -406,6 +405,7 @@ elif [ "${type}" = "shiburadi" ]; then
   playlist_uri=$(get_hls_uri_shiburadi)
 elif [ "${type}" = "radiko" ]; then
   # radiko
+  radiko_session=""
   radiko_login_status="0"
 
   # Login radiko premium
@@ -416,6 +416,10 @@ elif [ "${type}" = "radiko" ]; then
       echo "Cannot login radiko premium" >&2
       exit 1
     fi
+
+    # Register radiko logout handler
+    trap "logout_radiko ""${radiko_session}""" EXIT HUP INT QUIT TERM
+
     radiko_login_status="1"
   fi
 
@@ -424,7 +428,6 @@ elif [ "${type}" = "radiko" ]; then
   ret=$?
   if [ ${ret} -ne 0 ]; then
     echo "radiko authorize failed" >&2
-    logout_radiko "${radiko_session}"
     exit 1
   fi
 
@@ -432,9 +435,6 @@ elif [ "${type}" = "radiko" ]; then
 fi
 if [ -z "${playlist_uri}" ]; then
   echo "Cannot get playlist URI" >&2
-  if [ "${type}" = "radiko" ]; then
-    logout_radiko "${radiko_session}"
-  fi
   exit 1
 fi
 
@@ -476,15 +476,9 @@ fi
 ret=$?
 if [ ${ret} -ne 0 ]; then
   echo "Record failed" >&2
-  if [ "${type}" = "radiko" ]; then
-    logout_radiko "${radiko_session}"
-  fi
   exit 1
 fi
 
 # Finish
-if [ "${type}" = "radiko" ]; then
-  logout_radiko "${radiko_session}"
-fi
 exit 0
 ##### Main routine end #####
