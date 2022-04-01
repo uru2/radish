@@ -20,7 +20,6 @@ Options:
                     nhk: NHK Radidu
                     radiko: radiko
                     lisradi: ListenRadio
-                    jcba: JCBA simul radio
                     shiburadi: Shibuya no Radio
   -s STATION ID   Station ID
   -d MINUTE       Record minute(s)
@@ -62,15 +61,6 @@ show_all_stations() {
   # ListenRadio
   echo "Record site type: lisradi"
   curl --silent "http://listenradio.jp/service/channel.aspx" | jq -r '.Channel[] | "  " + (.ChannelId | tostring) + ": " + .ChannelName' 2> /dev/null
-  echo ""
-
-  # JCBA
-  echo "Record type: jcba"
-  list=$(curl --silent "https://www.jcbasimul.com/")
-  cnt=$(echo "${list}" | xmllint --html --xpath "count(//div[@class='stationList']//div[@class='areaList']/ul[@class='cf']/li)" - 2> /dev/null)
-  for i in $(awk "BEGIN { for (i = 1; i <= ${cnt}; i++) { print i } }"); do
-    echo "  $(echo "${list}" | xmllint --html --xpath "concat(string((//div[@class='stationList']//div[@class='areaList']/ul[@class='cf']/li)[${i}]//div[@class='rplayer']/@id), ': ', string((//div[@class='stationList']//div[@class='areaList']/ul[@class='cf']/li)[${i}]/@value))" - 2> /dev/null)"
-  done
   echo ""
 
   # Shibuya no Radio
@@ -244,19 +234,6 @@ get_hls_uri_lisradi() {
 }
 
 #######################################
-# Get JCBA HLS streaming URI
-# Arguments:
-#   Station ID
-# Returns:
-#   None
-#######################################
-get_hls_uri_jcba() {
-  station_id=$1
-
-  echo "https://musicbird-hls.leanstream.co/musicbird/${station_id}.stream/playlist.m3u8"
-}
-
-#######################################
 # Get Shibuya no Radio HLS streaming URI
 # Arguments:
 #   None
@@ -397,9 +374,6 @@ if [ "${type}" = "nhk" ]; then
 elif [ "${type}" = "lisradi" ]; then
   # ListenRadio
   playlist_uri=$(get_hls_uri_lisradi "${station_id}")
-elif [ "${type}" = "jcba" ]; then
-  # JCBA
-  playlist_uri=$(get_hls_uri_jcba "${station_id}")
 elif [ "${type}" = "shiburadi" ]; then
   # Shibuya no Radio
   playlist_uri=$(get_hls_uri_shiburadi)

@@ -1,5 +1,5 @@
 # radish
-[NHKラジオ らじる★らじる](https://www.nhk.or.jp/radio/) / [radiko](http://radiko.jp/) / [ListenRadio](http://listenradio.jp/) / [JCBAインターネットサイマルラジオ](https://www.jcbasimul.com/) / [渋谷のラジオ](https://shiburadi.com/) で現在配信中の番組を保存するシェルスクリプトです。なお配信形式と同じフォーマットで保存するため、別形式へのエンコードは行いません。
+[NHKラジオ らじる★らじる](https://www.nhk.or.jp/radio/) / [radiko](http://radiko.jp/) / [ListenRadio](http://listenradio.jp/) / [渋谷のラジオ](https://shiburadi.com/) で現在配信中の番組を保存するシェルスクリプトです。なお配信形式と同じフォーマットで保存するため、別形式へのエンコードは行いません。
 
 
 ## 必要なもの
@@ -16,12 +16,12 @@ $ ./radi.sh [options]
 
 | 引数 | 必須 |説明 |備考 |
 |:-|:-:|:-|:-|
-|-t _SITE TYPE_|○|録音対象サイト|nhk: NHK らじる★らじる<br>radiko: radiko<br>lisradi: ListenRadio<br>jcba: JCBAインターネットサイマルラジオ<br>shiburadi: 渋谷のラジオ
+|-t _SITE TYPE_|○|録音対象サイト|nhk: NHK らじる★らじる<br>radiko: radiko<br>lisradi: ListenRadio<br>shiburadi: 渋谷のラジオ
 |-s _STATION ID_|△|放送局ID|`-l` オプションで表示されるID<br>渋谷のラジオは指定不要|
 |-d _MINUTE_|○|録音時間(分)||
 |-i _MAIL_||ラジコプレミアム ログインメールアドレス|環境変数 `RADIKO_MAIL` でも指定可能|
 |-p _PASSWORD_||ラジコプレミアム ログインパスワード|環境変数 `RADIKO_PASSWORD` でも指定可能|
-|-o _PATH_||出力パス|未指定の場合カレントディレクトリに `放送局ID_年月日時分秒.(m4a|mp3)` というファイルを作成<br>拡張子がない場合または配信側の形式と異なる場合には拡張子を自動補完します|
+|-o _PATH_||出力パス|未指定の場合カレントディレクトリに `放送局ID_年月日時分秒.(m4a or mp3)` というファイルを作成<br>拡張子がない場合または配信側の形式と異なる場合には拡張子を自動補完します|
 |-l||放送局ID/名称表示|結果は300行以上になります、また取得は(割と)重いです|
 
 
@@ -51,11 +51,6 @@ $ ./radi.sh -t radiko -s HBC -d 31 -o "/hoge/foo.m4a"
 ```
 ListenRadio
 $ ./radi.sh -t lisradi -s 30058 -d 30 -o "/hoge/foo.m4a"
-```
-
-```
-JCBAインターネットサイマルラジオ
-$ ./radi.sh -t jcba -s JCB001 -d 30 -o "/hoge/foo.m4a"
 ```
 
 ```
