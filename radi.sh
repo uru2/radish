@@ -89,7 +89,7 @@ login_radiko() {
       --data-urlencode "mail=${mail}" \
       --data-urlencode "pass=${password}" \
       --output - \
-      "https://radiko.jp/v4/api/member/login")
+      "https://radiko.jp/ap/member/webapi/member/login")
 
   # Extract login result
   radiko_session=$(echo "${login_json}" | jq -r ".radiko_session")
