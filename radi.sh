@@ -211,13 +211,24 @@ get_hls_uri_nhk() {
 get_hls_uri_radiko() {
   station_id=$1
   radiko_login_status=$2
+  authtoken=$3
 
   areafree="0"
   if [ "${radiko_login_status}" = "1" ]; then
     areafree="1"
   fi
-
-  curl --silent "https://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='${areafree}'][1]/playlist_create_url/text()" - 2> /dev/null
+  urilist=$(curl --silent "https://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='${areafree}']/playlist_create_url/text()" - 2> /dev/null)
+  for x in `echo $urilist`
+  do
+    ffprobe -v quiet -headers "X-Radiko-Authtoken: ${authtoken}" $x
+    if test $0
+      then
+      echo $x
+      return 0  
+    fi
+    echo
+  done
+  return 1
 }
 
 #######################################
@@ -405,7 +416,7 @@ elif [ "${type}" = "radiko" ]; then
     exit 1
   fi
 
-  playlist_uri=$(get_hls_uri_radiko "${station_id}" "${radiko_login_status}")
+  playlist_uri=$(get_hls_uri_radiko "${station_id}" "${radiko_login_status}" "${radiko_authtoken}")
 fi
 if [ -z "${playlist_uri}" ]; then
   echo "Cannot get playlist URI" >&2
