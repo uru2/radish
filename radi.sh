@@ -212,12 +212,7 @@ get_hls_uri_radiko() {
   station_id=$1
   radiko_login_status=$2
 
-  areafree="0"
-  if [ "${radiko_login_status}" = "1" ]; then
-    areafree="1"
-  fi
-
-  curl --silent "https://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='${areafree}'][1]/playlist_create_url/text()" - 2> /dev/null
+  curl --silent "https://radiko.jp/v2/station/stream_smh_multi/${station_id}.xml" | xmllint --xpath "/urls/url[@areafree='1'][2]/playlist_create_url/text()" - | sed 's/\&amp;/\&/g' 2> /dev/null
 }
 
 #######################################
