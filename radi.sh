@@ -217,7 +217,7 @@ get_hls_uri_radiko() {
     areafree="1"
   fi
 
-  curl --silent "https://radiko.jp/v3/station/stream/aHybrid01/${station_id}.xml" | xmllint --xpath "/urls/url[@timefree='0' and @areafree='${areafree}'][1]/playlist_create_url/text()" - | sed 's/\&amp;/\&/g' 2> /dev/null
+  curl --silent "https://radiko.jp/v3/station/stream/pc_html5/${station_id}.xml" | xmllint --xpath "/urls/url[@timefree='0' and @areafree='${areafree}'][playlist_create_url[contains(text(),'_definst_')]]/playlist_create_url/text()" - | sed 's/\&amp;/\&/g' 2> /dev/null
 }
 
 #######################################
